@@ -1,14 +1,17 @@
-local old_concommandAdd = concommand.Add
-concommand.Add = function(command, func, ...)
-	if command == "ttt_spec_use" or command == "ttt_dropweapon" then
-		local old_func = func
-		func = function(ply, cmd, arg)
+hook.Add("InitPostEntity", "ReplaceCommands_SpecDM", function()
+	local replace = { "ttt_dropweapon", "ttt_spec_use" }
+	local cmds = concommand.GetTable()
+	
+	for k,v in pairs(replace) do
+		local old_func = cmds[v]
+		local function new_func(ply, cmd, arg)
 			if IsValid(ply) and ply:IsGhost() then return end
 			return old_func(ply, cmd, arg)
 		end
+		 
+		concommand.Add(v, new_func)
 	end
-	return old_concommandAdd(command, func, ...)
-end
+end)
 
 hook.Add("PlayerTraceAttack", "PlayerTraceAttack_SpecDM", function(ply, dmginfo, dir, trace)
 	if ply:IsGhost() then
